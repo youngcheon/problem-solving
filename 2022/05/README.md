@@ -1,2 +1,2 @@
-# boj-everday
+# boj-everyday
 ## 2022/05
