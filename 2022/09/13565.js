@@ -1,9 +1,3 @@
-const [[N, M], ...graph] = require("fs")
-    .readFileSync("/dev/stdin")
-    .toString()
-    .trim()
-    .split("\n")
-    .map((e) => e.split(" ").map(Number));
 class Node {
     constructor(value, next = null) {
         this.value = value;
@@ -18,7 +12,7 @@ class Queue {
         this.length = 0;
     }
 
-    push(value) {
+    enqueue(value) {
         this.length++;
         if (this.length === 1) {
             this.head = this.tail = new Node(value);
@@ -30,7 +24,7 @@ class Queue {
         this.tail = newNode;
     }
 
-    shift() {
+    dequeue() {
         this.length--;
         const value = this.head.value;
 
@@ -43,35 +37,34 @@ class Queue {
         return value;
     }
 }
-const dx = [-1, 1, 0, 0];
-const dy = [0, 0, -1, 1];
-function bfs(x, y) {
+const [SIZE, ...input] = require("fs").readFileSync("/dev/stdin").toString().trim().split("\n");
+const [M, N] = SIZE.split(" ").map(Number);
+const graph = input.map((e) => [...e].map(Number));
+const [dx, dy] = [
+    [-1, 1, 0, 0],
+    [0, 0, -1, 1],
+];
+function BFS(x, y) {
     const q = new Queue();
-    q.push([x, y]);
-    let count = 0;
+    q.enqueue([x, y]);
     while (q.length) {
-        const [x, y] = q.shift();
+        const [x, y] = q.dequeue();
         for (let i = 0; i < 4; i++) {
             const [nx, ny] = [dx[i] + x, dy[i] + y];
-            if (ny >= 0 && ny < N && nx < M && nx >= 0 && graph[ny][nx]) {
-                graph[ny][nx] = 0;
-                q.push([nx, ny]);
+            if (ny >= M) return 1;
+            if (nx >= 0 && nx < N && ny >= 0 && !graph[ny][nx]) {
+                graph[ny][nx] = 1;
+                q.enqueue([nx, ny]);
             }
         }
-        count++;
     }
-    return count;
+    return 0;
 }
 
-let paintingCount = 0;
-let paintingMaxSize = 0;
-for (let y = 0; y < N; y++) {
-    for (let x = 0; x < M; x++) {
-        if (graph[y][x]) {
-            graph[y][x] = 0;
-            paintingCount++;
-            paintingMaxSize = Math.max(paintingMaxSize, bfs(x, y));
-        }
+function solution() {
+    for (let i = 0; i < N; i++) {
+        if (!graph[0][i] && BFS(i, 0)) return "YES";
     }
+    return "NO";
 }
-console.log(`${paintingCount}\n${paintingMaxSize}`);
+console.log(solution());
